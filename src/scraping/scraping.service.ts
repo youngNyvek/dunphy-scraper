@@ -1,34 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import * as puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer';
+import { Cron } from '@nestjs/schedule';
+import { TelegramService } from '../telegram/telegram.service';
 
 @Injectable()
 export class ScrapingService {
-async scrapeWebsite(url: string): Promise<any> {
-  console.log(`[INFO] Iniciando o processo de scraping para a URL: ${url}`);
+constructor(private readonly telegramService: TelegramService) {}
+
+async onModuleInit(): Promise<void> {
+  console.log('[INFO] Executando o scraping imediatamente após a inicialização...');
+  await this.scrapeAndNotify();
+}
+
+@Cron('*/30 * * * *') // Executa a cada 30 minutos
+async scrapeAndNotify(): Promise<void> {
+  const url = process.env.URL!; // Substitua pela URL que deseja acessar
+  console.log(`[INFO] Iniciando o scraping para a URL: ${url}`);
 
   try {
-    // Inicializa o navegador com o Puppeteer padrão
     console.log('[INFO] Inicializando o navegador...');
     const browser = await puppeteer.launch({
-      headless: true, // Executa no modo headless
-      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Flags necessárias para evitar erros de permissão
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
-    console.log('[INFO] Criando uma nova página no navegador...');
     const page = await browser.newPage();
 
-    // Navega até a URL fornecida
+    // Define um User-Agent realista
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    );
+
     console.log(`[INFO] Navegando para a URL: ${url}`);
     await page.goto(url, { waitUntil: 'networkidle2' });
 
-    const returnedHtml = await page.content();
-    console.log(`[INFO] HTML retornado: ${returnedHtml}`);
-
-    // Aguarda que a div com a classe "row imoveis" esteja presente no DOM
-    console.log('[INFO] Aguardando o seletor ".row.imoveis" aparecer na página...');
-    await page.waitForSelector('.row.imoveis');
-
-    // Extrai as informações diretamente do DOM usando page.evaluate()
     console.log('[INFO] Extraindo informações da página...');
     const imoveis = await page.evaluate(() => {
       const rowImoveis = document.querySelector('.row.imoveis');
@@ -51,57 +56,53 @@ async scrapeWebsite(url: string): Promise<any> {
           const titulo = article.querySelector('.imovel-title h2')?.textContent?.trim() || '';
           const endereco = article.querySelector('.imovel-title .endereco')?.textContent?.trim() || '';
 
-          // Extrair características (metragem, quartos, vagas, banheiros)
-          const area = parseInt(article.querySelector('.caracteristica.area')?.textContent?.trim() || '0');
-          const quartos = parseInt(article.querySelector('.caracteristica.quartos')?.textContent?.trim() || '0');
-          const vagas = parseInt(article.querySelector('.caracteristica.vagas')?.textContent?.trim() || '0');
-          const banheiros = article.querySelector('.caracteristica.banheiros')?.textContent?.trim() || '';
-
           // Extrair valor
           const valorTexto =
             article.querySelector('.imovel-valor .valor')?.textContent?.replace(/[^\d]/g, '') || '0';
           const valor = parseFloat(valorTexto) || 0;
 
-          // Calcular preço por metro quadrado
-          const precoPorMetroQuadrado = area > 0 ? (valor / area).toFixed(2) : 'N/A';
+          // Extrair link direto do imóvel
+          const linkElement = document.querySelector(`[id='${id}-link-imovel']`);
+          const link = linkElement ? 'netimoveis.com' + linkElement.getAttribute('href') : '';
+
 
           // Retornar os dados extraídos como um objeto
           return {
             id,
             titulo,
             endereco,
-            area,
-            quartos,
-            vagas,
-            banheiros,
             valor,
-            precoPorMetroQuadrado,
+            link,
           };
         })
-        .filter(Boolean); // Remove itens nulos
+        .filter(element => element != null);
     });
 
-    console.log(`[INFO] Extração concluída. Total de imóveis encontrados: ${imoveis.length}`);
+    console.log(`[INFO] Total de imóveis encontrados: ${imoveis.length}`);
 
-    // Fecha o navegador
+    // Filtrar imóveis com aluguel até R$1500
+    const imoveisFiltrados = imoveis.filter((imovel) => imovel.valor <= 3000);
+
+    if (imoveisFiltrados.length > 0) {
+      console.log(`[INFO] Encontrados ${imoveisFiltrados.length} imóveis com aluguel até R$1500.`);
+      for (const imovel of imoveisFiltrados) {
+        const mensagem = `
+        🏠 *Novo Imóvel Disponível!*
+        📍 *Título:* ${imovel.titulo}
+        📍 *Endereço:* ${imovel.endereco}
+        💰 *Valor:* R$${imovel.valor.toFixed(2)}
+        🔗 *Link:* [Clique aqui](${imovel.link})
+        `;
+        await this.telegramService.sendMessage(mensagem);
+      }
+    } else {
+      console.log('[INFO] Nenhum imóvel encontrado com aluguel até R$1500.');
+    }
+
     console.log('[INFO] Fechando o navegador...');
     await browser.close();
-
-    console.log('[INFO] Processo de scraping concluído com sucesso.');
-    return imoveis;
   } catch (error) {
     console.error('[ERROR] Erro ao realizar o scraping:', error);
-
-    // Retorna uma mensagem de erro específica dependendo do tipo de problema
-    if (error.message.includes('ERR_NAME_NOT_RESOLVED')) {
-      throw new Error('Erro: O domínio fornecido não pôde ser resolvido. Verifique a URL.');
-    } else if (error.message.includes('Timeout')) {
-      throw new Error('Erro: Tempo limite excedido ao tentar acessar a página ou aguardar elementos.');
-    } else if (error.message.includes('No node found for selector')) {
-      throw new Error('Erro: O seletor esperado não foi encontrado na página. Verifique a estrutura do site.');
-    } else {
-      throw new Error(`Erro inesperado durante o scraping: ${error.message}`);
-    }
   }
 }
 }
