@@ -1,5 +1,5 @@
 # Etapa 2: Produção
-FROM node:18-slim AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /usr/src/app
 
@@ -13,14 +13,15 @@ COPY . .
 RUN npm run build
 # Exponha a porta padrão do NestJS
 
-FROM node:18-slim AS prod
+FROM node:22-slim AS prod
 
 WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/dist ./dist
 COPY package*.json ./
+COPY .env ./
 
-RUN npm install
+RUN npm install --omit=dev
 
 # Instale apenas as dependências do sistema necessárias para o Chromium
 RUN apt-get update && apt-get install -y \
