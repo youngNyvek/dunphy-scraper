@@ -1,9 +1,28 @@
-# Use a imagem oficial do Node.js como base
-FROM node:18
+# Etapa 2: Produção
+FROM node:18-slim AS builder
 
-# Defina o diretório de trabalho dentro do container
 WORKDIR /usr/src/app
 
+# Copie os arquivos de configuração e instale as dependências
+COPY package*.json ./
+RUN npm install
+
+# Copie o restante do código do projeto
+COPY . .
+
+RUN npm run build
+# Exponha a porta padrão do NestJS
+
+FROM node:18-slim AS prod
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/dist ./dist
+COPY package*.json ./
+
+RUN npm install
+
+# Instale apenas as dependências do sistema necessárias para o Chromium
 RUN apt-get update && apt-get install -y \
  libnss3 \
  libx11-xcb1 \
@@ -29,16 +48,7 @@ RUN apt-get update && apt-get install -y \
  xdg-utils \
  && rm -rf /var/lib/apt/lists/*
 
-
-# Copie os arquivos de configuração e instale as dependências
-COPY package*.json ./
-RUN npm install
-
-# Copie o restante do código do projeto
-COPY . .
-
-# Exponha a porta padrão do NestJS
 EXPOSE 3000
 
 # Comando para iniciar o servidor
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]
