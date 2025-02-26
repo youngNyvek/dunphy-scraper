@@ -1,99 +1,220 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+<h1><strong>Dunphy Scraper</strong></h1>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExaW1jZHRkaGZsNXZpYWdxeDE2czgzaGlsZ3ZuNG1tMTVvcGk3bXpqayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/geYwtodB9AiI0/giphy.gif" alt="Phil Dunphy">
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+<blockquote>
+  <p>"Você me vê dizendo 'Estou Cansado?' Nunca. Porque não existe 'Cansado' em Dunphy."<br>— Phil Dunphy, <strong>Modern Family</strong></p>
+</blockquote>
 
-## Description
+<p>O <strong>Dunphy Scraper</strong> é um projeto de web scraping desenvolvido com <strong>NestJS</strong>, que utiliza o <strong>Puppeteer</strong> para extrair informações exclusivamente do site <strong>Netimóveis</strong>. Ele envia notificações via <strong>Telegram</strong> sobre imóveis encontrados e armazena os dados em um banco de dados <strong>MongoDB</strong> para evitar duplicação de envios. Além disso, permite configurar dinamicamente o valor máximo desejado para os imóveis.</p>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+<hr>
 
-## Project setup
+<h2><strong>Pré-requisitos</strong></h2>
+<p>Antes de começar, certifique-se de ter os seguintes softwares instalados no seu sistema:</p>
+<ol>
+  <li><strong>Node.js</strong> (versão 18 ou superior)<br><a href="https://nodejs.org/">Download Node.js</a></li>
+  <li><strong>Docker</strong> e <strong>Docker Compose</strong><br><a href="https://www.docker.com/products/docker-desktop">Download Docker</a></li>
+  <li><strong>Git</strong> (para clonar o repositório)<br><a href="https://git-scm.com/">Download Git</a></li>
+</ol>
 
-```bash
-$ yarn install
-```
+<hr>
 
-## Compile and run the project
+<h2><strong>Instalação</strong></h2>
+<h3><strong>1. Clone o Repositório</strong></h3>
+<pre><code>git clone https://github.com/seu-usuario/dunphy-scraper.git
+cd dunphy-scraper
+</code></pre>
 
-```bash
-# development
-$ yarn run start
+<h3><strong>2. Instale as Dependências</strong></h3>
+<p>Certifique-se de estar no diretório do projeto e execute:</p>
+<pre><code>npm install
+</code></pre>
 
-# watch mode
-$ yarn run start:dev
+<hr>
 
-# production mode
-$ yarn run start:prod
-```
+<h2><strong>Configuração</strong></h2>
+<h3><strong>1. Variáveis de Ambiente</strong></h3>
+<p>Crie um arquivo <code>.env</code> na raiz do projeto e adicione as seguintes variáveis de ambiente:</p>
+<pre><code># Token do Bot do Telegram
+TELEGRAM_KEY=seu_token_do_bot
 
-## Run tests
+# ID do Chat ou Grupo no Telegram
+CHAT_ID=-123456789
 
-```bash
-# unit tests
-$ yarn run test
+# URL do site Netimóveis
+URL=https://www.netimoveis.com/imoveis/aluguel/
 
-# e2e tests
-$ yarn run test:e2e
+# Configuração do MongoDB
+MONGO_URI=mongodb://mongodb:27017/imoveisdb
+</code></pre>
 
-# test coverage
-$ yarn run test:cov
-```
+<h4><strong>Como Obter as Variáveis de Ambiente</strong></h4>
+<ol>
+  <li><strong>Token do Bot do Telegram (<code>TELEGRAM_KEY</code>)</strong>
+    <ul>
+      <li>Crie um bot no Telegram usando o <a href="https://core.telegram.org/bots#botfather">BotFather</a>.</li>
+      <li>Após criar o bot, você receberá um token exclusivo. Use-o aqui.</li>
+    </ul>
+  </li>
+  <li><strong>Chat ID do Telegram (<code>CHAT_ID</code>)</strong>
+    <ul>
+      <li>Adicione o bot ao grupo ou envie uma mensagem para ele.</li>
+      <li>Acesse a API do Telegram para obter o Chat ID:
+        <pre><code>curl "https://api.telegram.org/bot&lt;SEU_TELEGRAM_KEY&gt;/getUpdates"
+        </code></pre>
+      </li>
+      <li>Substitua <code>&lt;SEU_TELEGRAM_KEY&gt;</code> pelo token do bot e copie o valor do campo <code>"id"</code> dentro de <code>"chat"</code>.</li>
+    </ul>
+  </li>
+  <li><strong>URL do Site Netimóveis (<code>URL</code>)</strong>
+    <ul>
+      <li>Por padrão, use a URL base do Netimóveis para aluguel:
+        <pre><code>https://www.netimoveis.com/imoveis/aluguel/
+        </code></pre>
+      </li>
+      <li>Você pode ajustar a URL para filtrar por cidade, bairro ou outras opções diretamente no site.</li>
+    </ul>
+  </li>
+  <li><strong>URI do MongoDB (<code>MONGO_URI</code>)</strong>
+    <ul>
+      <li>No desenvolvimento local, use <code>mongodb://mongodb:27017/imoveisdb</code> (configurado no Docker Compose).</li>
+      <li>Em produção, substitua pelo URI do MongoDB hospedado.</li>
+    </ul>
+  </li>
+</ol>
 
-## Deployment
+<hr>
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+<h2><strong>Executando o Projeto</strong></h2>
+<h3><strong>1. Iniciar os Contêineres</strong></h3>
+<p>O projeto usa o Docker para rodar o banco de dados MongoDB. Para iniciar os contêineres, execute:</p>
+<pre><code>docker-compose up --build
+</code></pre>
+<p>Isso iniciará:</p>
+<ul>
+  <li>O banco de dados MongoDB na porta <code>27017</code>.</li>
+  <li>O serviço da aplicação NestJS na porta <code>3000</code>.</li>
+</ul>
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+<h3><strong>2. Verificar Logs</strong></h3>
+<p>Os logs dos serviços serão exibidos no terminal. Certifique-se de que não há erros e que o servidor está rodando corretamente.</p>
 
-```bash
-$ yarn install -g mau
-$ mau deploy
-```
+<hr>
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+<h2><strong>Rotas Disponíveis</strong></h2>
+<h3><strong>1. Configurações</strong></h3>
+<h4><strong>Obter o Valor Atual Configurado</strong></h4>
+<ul>
+  <li><strong>Endpoint:</strong> <code>GET /configuracao/valor</code></li>
+  <li><strong>Descrição:</strong> Retorna o valor atual configurado no banco de dados.</li>
+  <li><strong>Exemplo de Resposta:</strong>
+    <pre><code>{
+"id": "preco-alvo",
+"valor": 1500
+}
+    </code></pre>
+  </li>
+</ul>
 
-## Resources
+<h4><strong>Atualizar o Valor Configurado</strong></h4>
+<ul>
+  <li><strong>Endpoint:</strong> <code>POST /configuracao/valor</code></li>
+  <li><strong>Descrição:</strong> Atualiza o valor configurado no banco de dados.</li>
+  <li><strong>Corpo da Requisição:</strong>
+    <pre><code>{
+"valor": 1800
+}
+    </code></pre>
+  </li>
+  <li><strong>Exemplo de Resposta:</strong>
+    <pre><code>{
+"message": "Valor atualizado para R$1800"
+}
+    </code></pre>
+  </li>
+</ul>
 
-Check out a few resources that may come in handy when working with NestJS:
+<hr>
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+<h2><strong>Monitoramento</strong></h2>
+<h3><strong>Verificar os Contêineres Ativos</strong></h3>
+<p>Para verificar se os contêineres estão rodando, use:</p>
+<pre><code>docker ps
+</code></pre>
 
-## Support
+<h3><strong>Acompanhar Logs</strong></h3>
+<p>Para visualizar os logs em tempo real:</p>
+<pre><code>docker-compose logs -f
+</code></pre>
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+<hr>
 
-## Stay in touch
+<h2><strong>Parar os Contêineres</strong></h2>
+<p>Se quiser parar os contêineres, execute:</p>
+<pre><code>docker-compose down
+</code></pre>
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+<hr>
 
-## License
+<h2><strong>Estrutura do Projeto</strong></h2>
+<pre><code>dunphy-scraper/
+├── src/
+│   ├── app.module.ts         # Módulo principal do NestJS
+│   ├── main.ts               # Arquivo de entrada da aplicação
+│   ├── scraping/             # Lógica de scraping
+│   │   ├── scraping.service.ts
+│   │   └── scraping.module.ts
+│   ├── database/             # Conexão e modelos do MongoDB
+│   │   ├── database.module.ts
+│   │   ├── database.service.ts
+│   │   ├── imovel.schema.ts  # Esquema para imóveis encontrados
+|   |   └── configuracao/         # Rotas para gerenciar configurações
+│   |       ├── configuracao.controller.ts
+|   |       └── configuracao.schema.ts # Esquema para configurações
+│   ├── telegram/             # Integração com o Telegram
+│   │   ├── telegram.service.ts
+│   │   └── telegram.module.ts
+│   
+├── .env.example              # Variáveis de ambiente (criar .env)
+├── docker-compose.yml        # Configuração do Docker Compose
+├── Dockerfile                # Configuração do Docker para a aplicação
+├── package.json              # Dependências do projeto
+└── README.md                 # Documentação do projeto
+</code></pre>
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+<hr>
+
+<h2><strong>Tecnologias Utilizadas</strong></h2>
+<ul>
+  <li><strong>NestJS:</strong> Framework para construção de APIs escaláveis.</li>
+  <li><strong>Puppeteer:</strong> Biblioteca para automação de navegadores.</li>
+  <li><strong>MongoDB:</strong> Banco de dados não relacional para persistência de dados.</li>
+  <li><strong>Docker:</strong> Ferramenta para containerização.</li>
+  <li><strong>Telegram Bot API:</strong> Para envio de notificações.</li>
+</ul>
+
+<hr>
+
+<h2><strong>Contribuindo</strong></h2>
+<ol>
+  <li>Faça um fork do repositório.</li>
+  <li>Crie uma branch para sua feature:
+    <pre><code>git checkout -b minha-feature
+    </code></pre>
+  </li>
+  <li>Commit suas alterações:
+    <pre><code>git commit -m "Adiciona nova feature"
+    </code></pre>
+  </li>
+  <li>Envie para o repositório remoto:
+    <pre><code>git push origin minha-feature
+    </code></pre>
+  </li>
+  <li>Abra um Pull Request.</li>
+</ol>
+
+<hr>
+
+<h2><strong>Licença</strong></h2>
+<p>Este projeto está licenciado sob a licença MIT. Consulte o arquivo <code>LICENSE</code> para mais detalhes.</p>
