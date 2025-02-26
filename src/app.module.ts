@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ScrapingService } from './scraping/scraping.service';
-import { TelegramService } from './telegram/telegram.service';
 import { ConfigModule } from '@nestjs/config';
+import { ScrapingModule } from './scraping/scraping.module';
+import { ConfiguracaoController } from './database/configuracao/configuracao.controller';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
-imports: [ScheduleModule.forRoot(), ConfigModule.forRoot()],
-controllers: [AppController],
-providers: [AppService, ScrapingService, TelegramService],
+  imports: [ScrapingModule, ScheduleModule.forRoot(), ConfigModule.forRoot(), DatabaseModule],
+  controllers: [AppController, ConfiguracaoController],
+  providers: [AppService],
 })
-export class AppModule {}
-
+export class AppModule { }

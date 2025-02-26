@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - TELEGRAM_KEY=${TELEGRAM_KEY}
+      - CHAT_ID=${CHAT_ID}
+      - URL=${URL}
+      - MONGO_URI=${MONGO_URI}
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
