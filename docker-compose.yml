@@ -13,6 +13,10 @@ services:
       - CHAT_ID=${CHAT_ID}
       - URL=${URL}
       - MONGO_URI=${MONGO_URI}
+    deploy:
+      resources:
+        limits:
+          memory: 2g # Limita o uso de memória a 2GB
 
   mongodb:
     image: mongo:6.0
@@ -21,6 +25,10 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 2g # Limita o uso de memória a 2GB
 
 volumes:
   mongo-data:
